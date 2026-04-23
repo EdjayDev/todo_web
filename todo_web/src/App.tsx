@@ -1,34 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+    <div className="app-container">
+      <header className="hero">
+        <h1>Todo Manager</h1>
+        <p className="subtitle">
+          Organize your tasks, stay productive, and keep track of what matters.
         </p>
-      </div>
-      <p className="read-the-docs">
-        Read the documentation for this project
-      </p>
-    </>
+      </header>
+
+      <main className="content">
+        <section className="features">
+          <h2>What you can do</h2>
+          <ul>
+            <li>✔ Add and manage your daily tasks</li>
+            <li>✔ Mark tasks as completed</li>
+            <li>✔ Stay focused with a clean workflow</li>
+          </ul>
+        </section>
+
+        <section className="cta">
+          <button className="start-btn">Get Started</button>
+        </section>
+      </main>
+    </div>
   )
 }
 
