@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 type Todo = {
@@ -17,34 +17,32 @@ function App() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
 
-  // Load from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('todos')
     if (saved) setTodos(JSON.parse(saved))
   }, [])
 
-  // Save to localStorage
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos))
   }, [todos])
 
   const addTodo = () => {
-    if (!input.trim()) return
+    const value = input.trim()
+    if (!value) return
 
-    const newTodo: Todo = {
-      id: Date.now(),
-      text: input.trim(),
-      completed: false,
-    }
-
-    setTodos(prev => [newTodo, ...prev])
+    setTodos(prev => [
+      { id: Date.now(), text: value, completed: false },
+      ...prev,
+    ])
     setInput('')
   }
 
   const toggleTodo = (id: number) => {
     setTodos(prev =>
       prev.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo.id === id
+          ? { ...todo, completed: !todo.completed }
+          : todo
       )
     )
   }
@@ -59,11 +57,15 @@ function App() {
   }
 
   const saveEdit = (id: number) => {
-    if (!editText.trim()) return
+    const value = editText.trim()
+    if (!value) {
+      setEditingId(null)
+      return
+    }
 
     setTodos(prev =>
       prev.map(todo =>
-        todo.id === id ? { ...todo, text: editText.trim() } : todo
+        todo.id === id ? { ...todo, text: value } : todo
       )
     )
 
@@ -71,13 +73,16 @@ function App() {
     setEditText('')
   }
 
-  const filteredTodos = todos.filter(todo => {
-    if (filter === 'active') return !todo.completed
-    if (filter === 'completed') return todo.completed
-    return true
-  })
+  // cleaner + memoized
+  const filteredTodos = useMemo(() => {
+    const map = {
+      all: () => true,
+      active: (t: Todo) => !t.completed,
+      completed: (t: Todo) => t.completed,
+    }
+    return todos.filter(map[filter])
+  }, [todos, filter])
 
-  // Landing Page
   if (!started) {
     return (
       <div className="app-container">
@@ -109,14 +114,21 @@ function App() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addTodo()}
         />
-        <button onClick={addTodo}>Add</button>
+        <button onClick={addTodo} disabled={!input.trim()}>
+          Add
+        </button>
       </div>
 
-      {/* Filters */}
       <div className="filters">
-        <button onClick={() => setFilter('all')}>All</button>
-        <button onClick={() => setFilter('active')}>Active</button>
-        <button onClick={() => setFilter('completed')}>Completed</button>
+        {(['all', 'active', 'completed'] as Filter[]).map(f => (
+          <button
+            key={f}
+            className={filter === f ? 'active' : ''}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </button>
+        ))}
       </div>
 
       <ul className="todo-list">
@@ -129,7 +141,9 @@ function App() {
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
                 onBlur={() => saveEdit(todo.id)}
-                onKeyDown={(e) => e.key === 'Enter' && saveEdit(todo.id)}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && saveEdit(todo.id)
+                }
                 autoFocus
               />
             ) : (
