@@ -17,9 +17,14 @@ function App() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
 
+  // safer load
   useEffect(() => {
-    const saved = localStorage.getItem('todos')
-    if (saved) setTodos(JSON.parse(saved))
+    try {
+      const saved = localStorage.getItem('todos')
+      if (saved) setTodos(JSON.parse(saved))
+    } catch {
+      console.warn('Failed to parse todos from localStorage')
+    }
   }, [])
 
   useEffect(() => {
@@ -31,7 +36,11 @@ function App() {
     if (!value) return
 
     setTodos(prev => [
-      { id: Date.now(), text: value, completed: false },
+      {
+        id: Date.now() + Math.random(), // avoids collisions
+        text: value,
+        completed: false,
+      },
       ...prev,
     ])
     setInput('')
@@ -51,15 +60,24 @@ function App() {
     setTodos(prev => prev.filter(todo => todo.id !== id))
   }
 
+  const clearCompleted = () => {
+    setTodos(prev => prev.filter(todo => !todo.completed))
+  }
+
   const startEdit = (todo: Todo) => {
     setEditingId(todo.id)
     setEditText(todo.text)
   }
 
+  const cancelEdit = () => {
+    setEditingId(null)
+    setEditText('')
+  }
+
   const saveEdit = (id: number) => {
     const value = editText.trim()
     if (!value) {
-      setEditingId(null)
+      cancelEdit()
       return
     }
 
@@ -69,11 +87,9 @@ function App() {
       )
     )
 
-    setEditingId(null)
-    setEditText('')
+    cancelEdit()
   }
 
-  // cleaner + memoized
   const filteredTodos = useMemo(() => {
     const map = {
       all: () => true,
@@ -82,6 +98,11 @@ function App() {
     }
     return todos.filter(map[filter])
   }, [todos, filter])
+
+  const remaining = useMemo(
+    () => todos.filter(t => !t.completed).length,
+    [todos]
+  )
 
   if (!started) {
     return (
@@ -131,6 +152,11 @@ function App() {
         ))}
       </div>
 
+      <div className="todo-meta">
+        <span>{remaining} remaining</span>
+        <button onClick={clearCompleted}>Clear completed</button>
+      </div>
+
       <ul className="todo-list">
         {filteredTodos.length === 0 && <p>No tasks.</p>}
 
@@ -141,9 +167,10 @@ function App() {
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
                 onBlur={() => saveEdit(todo.id)}
-                onKeyDown={(e) =>
-                  e.key === 'Enter' && saveEdit(todo.id)
-                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveEdit(todo.id)
+                  if (e.key === 'Escape') cancelEdit()
+                }}
                 autoFocus
               />
             ) : (
