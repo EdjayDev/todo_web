@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# Todo Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight, performant, and reliable task management web application built using React, TypeScript, and Vite. This project emphasizes clean UI logic, robust state management, and optimized rendering behaviors.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Key Features
 
-## React Compiler
+*   **Persistent Storage:** Tasks automatically synchronize with `localStorage`, featuring fail-safe `try/catch` JSON parsing to handle corrupted data safely.
+*   **State Optimization:** Utilizes `useMemo` hooks to prevent unnecessary filtering recalculations and sub-component re-renders when state changes.
+*   **Advanced Task Controls:** Features global "Complete All / Uncheck All" operations alongside a unified "Clear Completed" action.
+*   **Inline Editing:** Supports seamless inline inline item renaming with automatic text trimming, keyboard navigation bindings (`Enter` to save, `Escape` to cancel), and fallback auto-deletion on empty inputs.
+*   **Robust Unique IDs:** Employs a fallback random identifier strategy checking for modern `crypto.randomUUID` capabilities down to cross-browser timestamp math generation.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Technical Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+*   **Framework:** React 18+
+*   **Language:** TypeScript (Strictly typed schemas for tasks and filter contexts)
+*   **Build Tool:** Vite
+*   **State & Lifecycle Management:** `useState`, `useEffect`, `useMemo`, `useRef`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Code Structure Insights
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The core logic focuses closely on user workflow and data integrity:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+*   **Robust Component Lifecycle:** An initial `useEffect` runs once during mounting to read existing items, while a secondary dependency-tracked hook automatically pushes serialized mutation states back to the browser sandbox.
+*   **UX Accessibility:** Features programmatic auto-focus via a DOM `useRef` targeting text inputs instantly as soon as the splash screen is dismissed or an item is committed.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Local Installation
+
+To run this project locally, execute the following commands in your terminal:
+
+1. **Clone the repository:**
+```bash
+   git clone [https://github.com/YOUR_USERNAME/todo-manager.git](https://github.com/YOUR_USERNAME/todo-manager.git)
+   cd todo-manager
